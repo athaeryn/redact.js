@@ -1,6 +1,6 @@
 $(document).ready( function () {
-    var loremblocks = $('.lorem'), color;
-    loremblocks.each(function (i) {
+    var redactedblocks = $('.redacted'), color;
+    redactedblocks.each(function (i) {
         color = $(this).css('color');
         var content = $(this).html();
         var split = content.split(' ');
@@ -9,7 +9,7 @@ $(document).ready( function () {
         }
         $(this).html(split.join(' '));
     });
-    loremblocks.find('span').css({
+    redactedblocks.find('span').css({
         'color': 'transparent',
         'background-color': color
     });
