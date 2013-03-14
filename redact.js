@@ -1,6 +1,4 @@
 $(document).ready( function () {
-    var style = "<style>.redacted>span:after{position:absolute;top:25%;bottom:25%;left:0;right:0;background:black;content:'';}</style>"
-    $('head').append(style);
     function randChar() {
         var chars = ['*', '&', '#', '@', '!', '%'];
         return chars[Math.floor(Math.random() * chars.length)];
@@ -23,4 +21,6 @@ $(document).ready( function () {
         'color': 'transparent',
         'position': 'relative'
     });
+    var style = "<style>.redacted>span:after{position:absolute;top:25%;bottom:25%;left:0;right:0;background:" + color + ";content:'';}</style>"
+    $('head').append(style);
 });
