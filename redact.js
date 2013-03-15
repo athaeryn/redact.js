@@ -1,21 +1,25 @@
 $(document).ready(function () {
     "use strict";
 
-    var color,
-        chars = ['*', '&', '#', '@', '!', '%'];
+    var color = [],
+        chars = '*&#@!%'.split('');
 
     function randChar() {
         return chars[Math.floor(Math.random() * chars.length)];
     }
 
-    $('.redacted').each(function () {
+    $('.redacted').each(function (id) {
         // Get the original text of the outer element
         var all = $(this).html();
 
+        // Save the color
+        color[id] = $(this).css('color');
+
         // Wrap each word in <span>
-        all = all.replace(/\s+/g, '</span> <span>');
+        all = all.replace(/\S+/g, function (a) {
+            return "<span>" + a + "</span>";
+        });
         all = all.replace(/&nbsp;/g, '</span>&nbsp;<span>');
-        all = '<span>' + all + '</span>';
 
         // Put the <span>-wrapped content back
         $(this).html(all);
@@ -41,15 +45,20 @@ $(document).ready(function () {
                 'position': 'relative'
             });
         });
-        
-        // Save the color
-        color = $(this).css('color');
 
-        // Change it to transparent. Also, position relative for the :afters.
+        // Give the element a class that can be targeted in the css
+        $(this).addClass('redacted' + id);
     });
 
-    // Inject the blocks' style, so they are sexy and thin
-    var style = "<style>.redacted>span:after{position:absolute;top:25%;bottom:25%;left:0;right:0;background:" + color + ";content:'';}</style>"
-    $('head').append(style);
+    // The common style for the blocks
+    var style = ".redacted>span:after{position:absolute;top:25%;bottom:25%;left:0;right:0;content:'';}"
+
+    // Create rules for each of the background colors
+    for (var i = 0; i < color.length; i++) {
+        style += ".redacted" + i + ">span:after{background:" + color[i] + "}"
+    }
+
+    // Insert the style tag
+    $('head').append("<style>" + style + "</style>");
 
 });
