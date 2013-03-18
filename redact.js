@@ -1,64 +1,79 @@
 $(document).ready(function () {
     "use strict";
+ 
+    // This give arrays "pushUnique" function
+    // If the item you wish to push exists in the array, then you get back its
+    // id, which is just its position in the array. If it doesn't exist, then it
+    // gets pushed on to the array, and you still get back the id.
+    Array.prototype.pushUnique = function (item) {
+        var id = this.indexOf(item);
+        if (id == -1) {
+            this.push(item);
+            id = this.length - 1;
+        }
+        return id;
+    }
 
+    // "color" will hold the ids of each unique color.
     var color = [],
         chars = '*&#@!%'.split('');
 
+    // Simply returns a random character from the "chars" array.
     function randChar() {
         return chars[Math.floor(Math.random() * chars.length)];
     }
 
-    $('.redacted').each(function (id) {
-        // Get the original text of the outer element
-        var all = $(this).html();
-
-        // Save the color
-        color[id] = $(this).css('color');
-
-        // Wrap each word in <span>
-        all = all.replace(/\S+/g, function (a) {
+    // "This"->"!@&$" 
+    function grawlix(text) {
+        var grawlix = '';
+        for (var i = 0; i < text.length; i++) {
+            grawlix += text[i] == ' ' ? ' ' : randChar();
+        }
+        return grawlix;
+    }
+   
+    // Wraps each word in a <span>, and is repectful of &nbsp;
+    function spanify(text) {
+        return text.replace(/\S+/g, function (a) {
+            a = a.replace(/&nbsp;/g, '</span>&nbsp;<span>');
             return "<span>" + a + "</span>";
         });
-        all = all.replace(/&nbsp;/g, '</span>&nbsp;<span>');
+    }
 
-        // Put the <span>-wrapped content back
-        $(this).html(all);
+    $('.redacted').each(function () {
+        // Get a unique id for the color.
+        var colorID = color.pushUnique($(this).css('color'));
 
-        // Go through each of these new spans
+        // Wrap the text in <span>s and put it back.
+        $(this).html(spanify($(this).html()));
+
+        // Go through each of these new <span>s.
         $(this).find('span').each(function () {
             
-            // Grab the old content
-            var old = $(this).html(),
-                grawlix = '';
+            // Set the content to grawlixes.
+            $(this).html(grawlix($(this).html()));
 
-            // Replace each letter with a random character
-            for (var i = 0; i < old.length; i++) {
-                grawlix += old[i] == ' ' ? ' ' : randChar();
-            }
-
-            // Set the content to the grawlixes
-            $(this).html(grawlix);
-
-            // Set some stylings
+            // Hide the text and position relative so that our blocks position
+            // themselves correctly.
             $(this).css({
                 'color': 'transparent',
                 'position': 'relative'
             });
         });
 
-        // Give the element a class that can be targeted in the css
-        $(this).addClass('redacted' + id);
+        // Attach a hook class with the appropriate unique color id 
+        $(this).addClass('redacted' + colorID);
     });
 
-    // The common style for the blocks
+    // Set the common style for the blocks.
     var style = ".redacted>span:after{position:absolute;top:25%;bottom:25%;left:0;right:0;content:'';}"
 
-    // Create rules for each of the background colors
+    // Create rules for each unique color.
     for (var i = 0; i < color.length; i++) {
         style += ".redacted" + i + ">span:after{background:" + color[i] + "}"
     }
 
-    // Insert the style tag
+    // Insert the style tag into the document.
     $('head').append("<style>" + style + "</style>");
 
 });
